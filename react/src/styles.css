@@ -12,18 +12,22 @@
   padding-inline: var(--ds-space-8);
   border: 0;
   border-radius: var(--ds-btn-radius);
-  background: var(--ds-accent);
-  color: var(--ds-accent-fg);
+  /* CTA par thème, comme le portfolio: accent (studio), rubis (book), dégradé (mood) */
+  background: var(--ds-cta-bg);
+  color: var(--ds-cta-fg);
   font: var(--ds-weight-medium) var(--ds-text-14) / 1 var(--ds-font-sans);
   letter-spacing: var(--ds-tracking-wide);
   text-decoration: none;
   cursor: pointer;
-  transition: filter var(--ds-dur-hover) var(--ds-ease-out),
-    background-color var(--ds-dur-hover) var(--ds-ease-out),
-    border-color var(--ds-dur-hover) var(--ds-ease-out),
-    color var(--ds-dur-hover) var(--ds-ease-out);
+  transition: background-color var(--ds-dur-fast) var(--ds-ease-out),
+    border-color var(--ds-dur-fast) var(--ds-ease-out),
+    color var(--ds-dur-fast) var(--ds-ease-out),
+    transform var(--ds-dur-fast) var(--ds-ease-out);
 }
-.lm-btn:hover { filter: brightness(1.12); }
+.lm-btn--primary:hover {
+  transform: scale(1.05);
+  box-shadow: var(--ds-cta-glow);
+}
 .lm-btn--outline {
   padding-inline: var(--ds-space-6);
   border: var(--ds-border-control) solid var(--ds-fg);
@@ -32,22 +36,23 @@
   color: var(--ds-fg);
 }
 .lm-btn--outline:hover {
-  filter: none;
   border-color: var(--ds-accent);
   background: var(--ds-accent);
   color: var(--ds-accent-fg);
 }
+/* Pas de graisse sur la police du kicker: Special Elite (book) n'a qu'un poids,
+   en demander un autre ferait synthétiser un faux gras au navigateur. */
 .lm-btn--pill {
   min-height: 28px;
   padding-inline: var(--ds-space-3);
-  border: var(--ds-border-hairline) solid var(--ds-border-strong);
+  border: var(--ds-border-control) solid var(--ds-border-strong);
   border-radius: var(--ds-radius-full);
   background: transparent;
   color: var(--ds-fg);
-  font: var(--ds-weight-medium) var(--ds-text-10) / 1 var(--ds-font-mono);
+  font: 400 var(--ds-text-10) / 1 var(--ds-font-kicker);
   letter-spacing: var(--ds-tracking-wide);
 }
-.lm-btn--pill:hover { filter: none; border-color: var(--ds-accent); }
+.lm-btn--pill:hover { border-color: var(--ds-accent); }
 /* Zone tactile de 44px (WCAG 2.5.8) sans agrandir le bouton visuellement. */
 .lm-btn--pill::after {
   content: "";
@@ -62,7 +67,8 @@
 .lm-btn[aria-disabled="true"] {
   opacity: 0.45;
   cursor: not-allowed;
-  filter: none;
+  transform: none;
+  box-shadow: none;
 }
 
 /* ---------- Focus visible (WCAG 2.4.7): anneau 2px, décalage 3px ---------- */
@@ -128,7 +134,7 @@
 .lm-card__kicker {
   margin: 0;
   color: var(--ds-fg-muted);
-  font: var(--ds-weight-medium) var(--ds-text-12) / var(--ds-leading-snug) var(--ds-font-mono);
+  font: 400 var(--ds-text-12) / var(--ds-leading-snug) var(--ds-font-kicker);
   letter-spacing: var(--ds-tracking-kicker);
   text-transform: uppercase;
 }
@@ -144,4 +150,5 @@
 
 @media (prefers-reduced-motion: reduce) {
   .lm-btn { transition: none; }
+  .lm-btn--primary:hover { transform: none; }
 }

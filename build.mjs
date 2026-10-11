@@ -63,8 +63,11 @@ const report = []
 for (const [name, def] of Object.entries(T.theme)) {
   const th = {}
   for (const [k, v] of Object.entries(def)) {
-    th[k] = Array.isArray(v) ? v.map(resolve) : resolve(v)
+    const r = Array.isArray(v) ? v : resolve(v) // une référence peut viser un dégradé (tableau)
+    th[k] = Array.isArray(r) ? r.map(resolve) : r
   }
+  // CTA primaire: couleur unie ou dégradé; ses arrêts servent au calcul de contraste
+  th.ctaStops = Array.isArray(th.ctaBg) ? th.ctaBg : [th.ctaBg]
   const bgs = [th.bg, th.bgEdge].filter(Boolean) // pire cas sur un dégradé
 
   const mutedText = minAlpha(th.fg, th.bg, bgs, A.textRatio)
@@ -117,6 +120,7 @@ for (const [name, def] of Object.entries(T.theme)) {
     ['errorText / bg', th.errorText, th.bg, A.textRatio],
     ['borderStrong / bg', th.borderStrong, th.bg, A.uiRatio],
     ['focusRing / bg', th.focusRing, th.bg, A.uiRatio],
+    ...th.ctaStops.map((stop) => ['ctaFg / ctaBg', th.ctaFg, stop, A.textRatio]),
   ]
   if (th.bgEdge) {
     pairs.push(['fg / bgEdge', th.fg, th.bgEdge, A.textRatio])
@@ -193,6 +197,10 @@ const themeBlock = (sel, th) => {
   L(`  --ds-btn-radius: ${th.btnRadius};`)
   if (th.gradient) L(`  --ds-gradient: linear-gradient(to right, ${th.gradient.join(', ')});`)
   if (th.gradientText) L(`  --ds-gradient-text: linear-gradient(to right, ${th.gradientText.join(', ')});`)
+  L(`  --ds-font-kicker: var(--ds-font-${th.fontKicker});`)
+  L(`  --ds-cta-bg: ${Array.isArray(th.ctaBg) ? `linear-gradient(to right, ${th.ctaBg.join(', ')})` : th.ctaBg};`)
+  L(`  --ds-cta-fg: ${th.ctaFg};`)
+  L(`  --ds-cta-glow: ${th.ctaGlow ? `0 0 30px color-mix(in srgb, ${th.ctaGlow} 25%, transparent)` : 'none'}; /* halo au survol du CTA */`)
   L('  color-scheme: ' + (lum(th.bg) < 0.18 ? 'dark' : 'light') + ';')
   L('}')
   L()

@@ -42,8 +42,8 @@ Détails du package : [react/README.md](react/README.md).
 ## Ce qui est fait / pas fait
 
 **Fait**
-- `tokens.json` (valeurs issues d'un audit du portfolio) et `build.mjs` : 32 paires de contraste vérifiées, 0 échec.
-- Package `lumen-ds` v0.1.0 : 5 composants, 15 tests (clavier, ARIA, axe), typecheck et build verts.
+- `tokens.json` (valeurs issues d'un audit du portfolio) et `build.mjs` : 36 paires de contraste vérifiées, 0 échec.
+- Package `lumen-ds` v0.1.0 : 5 composants, 19 tests (clavier, ARIA, axe, jetons générés), typecheck et build verts.
   Sortie ESM importable directement par Node.
 - Rendu vérifié sur les 3 thèmes ; playground Vite.
 - Figma : variables (Primitives, Theme / Studio, Theme / Book, Theme / Mood, Scale), 13+2 styles de texte,
@@ -53,6 +53,8 @@ Détails du package : [react/README.md](react/README.md).
 - Synchronisation automatique Figma ↔ code : les variables Figma ont été chargées une fois depuis
   `dist/figma-variables.json`, sans script de synchro.
 - Tag et Card dans Figma.
+- Figma en retard sur le code : le CTA primary par thème (rubis sur book, dégradé sur mood) et la police
+  du kicker par thème ne sont pas encore reportés dans les variantes Button.
 - Code Connect.
 - Publication npm.
 - Site de documentation.
