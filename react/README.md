@@ -35,7 +35,7 @@ Avec Tailwind v4: `@import 'lumen-ds/tailwind-theme.css';` expose `bg-bg`, `text
 
 | Composant | Variantes | Points d'accessibilité |
 |---|---|---|
-| `Button` / `ButtonLink` | `primary`, `outline`, `pill` | focus visible 2px/3px, `type="button"` par défaut, lien désactivé = sans `href` + `aria-disabled`, zone tactile 44px sur `pill` |
+| `Button` / `ButtonLink` | `primary` (CTA du thème: accent, rubis ou dégradé), `outline`, `pill` | focus visible 2px/3px, `type="button"` par défaut, lien désactivé = sans `href` + `aria-disabled`, zone tactile 44px sur `pill` |
 | `Input` | — | étiquette obligatoire, `aria-describedby` auto, `aria-invalid`, erreur préfixée (« Erreur : ») pour ne pas dépendre de la couleur, placeholder AA |
 | `Tag` | `accent`, `soft`, `outline` | statique; pour une action, utiliser `Button variant="pill"` |
 | `Card` | — | niveau de titre explicite (`headingLevel`) |
@@ -53,10 +53,10 @@ npm run typecheck
 
 ## Ce qui est vérifié, et ce qui ne l'est pas
 
-Vérifié (2026-10-11): génération des jetons (32 paires de contraste, 0 échec); rendu des 4 composants sur les 3 thèmes dans
+Vérifié (2026-10-11): génération des jetons (36 paires de contraste, 0 échec); rendu des 4 composants sur les 3 thèmes dans
 Chromium; anneau de focus calculé (2px solid, décalage 3px) sur les 3 thèmes; câblage `label` / `aria-describedby` / `aria-invalid`.
 
-Exécuté en local (Node 22): `npm test` (15 tests: axe, clavier, ARIA), `npm run typecheck` et `npm run build`, tous verts;
+Exécuté en local (Node 22): `npm test` (19 tests: axe, clavier, ARIA, jetons générés), `npm run typecheck` et `npm run build`, tous verts;
 `dist/index.js` s'importe en ESM Node pur. Package non publié sur npm.
 
 Limite connue: jsdom n'a pas de mise en page, donc `jest-axe` ne vérifie pas les contrastes. Ils sont garantis par `build.mjs`.

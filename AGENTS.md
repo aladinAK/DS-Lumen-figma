@@ -20,10 +20,14 @@ toute nouvelle affirmation (tests, contraste, Figma) s'appuie sur une commande l
 - Imports relatifs de `react/src` : toujours avec extension `.js` (ESM Node pur dans `dist/`).
 - `dist/` et `react/dist/` : générés, non versionnés.
 
+## Direction
+Lumen suit l'identité visuelle du portfolio (CTA, polices, survols, durées). Exception : les corrections
+d'accessibilité de Lumen (anneau de focus, contrastes calculés, bordures de contrôle >= 3:1) sont gardées.
+
 ## Commandes (depuis `react/`)
 ```bash
 npm install
-npm test            # 15 tests
+npm test            # 19 tests
 npm run typecheck
 npm run build       # node ../build.mjs + tsc + copie CSS
 node -e "import('./dist/index.js').then(m => console.log(Object.keys(m)))"
