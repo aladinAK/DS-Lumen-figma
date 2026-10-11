@@ -1,0 +1,13 @@
+node_modules/
+dist/
+react/dist/
+
+# Sorties de vérification visuelle (preview.html, captures)
+preview.*
+# … mais pas le script qui les génère
+!react/scripts/preview.tsx
+
+.DS_Store
+*.log
+.env
+.env.*
