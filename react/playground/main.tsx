@@ -14,11 +14,18 @@ const VIEWS = [
 ] as const
 type View = (typeof VIEWS)[number]['key']
 
+// Lien direct depuis le portfolio: ?view=comparateur&theme=book. Une valeur inconnue retombe sur le défaut.
+const params = new URLSearchParams(window.location.search)
+const pick = <T extends string>(value: string | null, allowed: readonly T[], fallback: T): T =>
+  allowed.find((a) => a === value) ?? fallback
+const initialTheme = pick(params.get('theme'), THEMES, 'studio')
+const initialView = pick(params.get('view'), VIEWS.map((v) => v.key), 'composants')
+
 function App() {
-  const [theme, setTheme] = useState<Theme>('studio')
+  const [theme, setTheme] = useState<Theme>(initialTheme)
   const [email, setEmail] = useState('')
   const [touched, setTouched] = useState(false)
-  const [view, setView] = useState<View>('composants')
+  const [view, setView] = useState<View>(initialView)
   const invalid = touched && !/^\S+@\S+\.\S+$/.test(email)
 
   return (

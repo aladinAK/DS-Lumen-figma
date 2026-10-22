@@ -2,7 +2,10 @@
 
 Design system extrait de mon portfolio ([aladinakkari.ca](https://aladinakkari.ca), Next.js 16 + Tailwind 4) :
 une source unique de jetons, un build sans dépendance qui produit CSS, Tailwind et variables Figma,
-et une bibliothèque React accessible. Trois thèmes : **studio** (défaut), **book**, **mood**.
+et une bibliothèque React accessible. Trois thèmes : **studio** (défaut), **book**, **mood**
+(dans le portfolio : `.section-studio`, `.section-tech`, `.section-lifestyle`).
+
+Démo : [ds-lumen-figma.vercel.app](https://ds-lumen-figma.vercel.app/) · documentée sur le portfolio, panneau « Mon design system », section Données et version 1.6.
 
 ## La chaîne
 
@@ -20,10 +23,32 @@ tokens.json ──► build.mjs ──┬─► dist/tokens.css           variab
 - `build.mjs` **calcule** les couleurs dérivées (`fg-muted`, `fg-subtle`, `border-strong`, `accent-alt-text`, `error-text`,
   `success-text`, `data-estimated`, `data-stale`) pour atteindre WCAG AA sur chaque thème, et **échoue** si une paire passe sous sa cible.
 - Les composants ne consomment que les variables `--ds-*` ; changer de thème = changer `data-theme`.
+- Le portfolio installe `lumen-ds` (dépendance git) : il importe `lumen-ds/tokens.css`, ses `--section-*` sont des alias des
+  `--ds-*`, chaque section porte son `data-theme`, et son panneau « Mon design system » affiche `Button`, `Tag`, `Input`
+  et `Card` du package. Un changement de jeton se fait ici, jamais dans le portfolio.
+- Textes des composants en français ou en anglais : la langue suit la prop `locale` (`en-*` → anglais, sinon français).
 - Couche données : une interface ne présente jamais une donnée avec plus de certitude qu'elle n'en a.
   Quatre états (vérifiée, estimée, périmée, manquante), jamais portés par la couleur seule, et « manquant » n'est jamais 0.
 - Fichier Figma : [Lumen — Design System](https://www.figma.com/design/d4n8p0lYl7nA23p1Fr5H8i).
   Une collection de variables par thème (le plan Starter limite à 1 mode par collection).
+
+## Installer
+
+Pas encore publié sur npm : installation depuis ce dépôt (sous-dossier `react/`). Le script `prepare` compile le package
+(jetons, types, CSS) pendant l'installation.
+
+```bash
+pnpm add "github:aladinAK/DS-Lumen-figma#path:/react"
+```
+
+```tsx
+import 'lumen-ds/tokens.css'   // variables --ds-* et thèmes [data-theme]
+import 'lumen-ds/styles.css'   // styles des composants (.lm-*)
+import { Button, DataValue } from 'lumen-ds'
+```
+
+Testé avec pnpm 9.1.1. pnpm 10 bloque par défaut les scripts des dépendances git : il faut autoriser `lumen-ds`
+comme l'indique son message d'erreur (non vérifié ici).
 
 ## Commandes
 
@@ -43,7 +68,10 @@ npm run build:playground  # playground statique → react/dist-playground/
 
 ## Déployer le playground (site statique)
 
-Rien n'est déployé pour l'instant. Le build lit `tokens.json` et `build.mjs` à la racine : le dépôt entier doit être disponible.
+Déployé sur Vercel : <https://ds-lumen-figma.vercel.app/>. Lien direct vers une vue et un thème :
+`?view=comparateur&theme=book` (`view` : `composants` | `comparateur` ; `theme` : `studio` | `book` | `mood`).
+
+Le build lit `tokens.json` et `build.mjs` à la racine : le dépôt entier doit être disponible.
 
 - Commande : `npm run build:playground` (depuis `react/`, après `npm ci`), Node 22.
 - Dossier de sortie : `react/dist-playground/` (séparé de `react/dist/`, réservé au package npm ; non versionné).
@@ -65,13 +93,15 @@ Détails du package : [react/README.md](react/README.md).
 - `tokens.json` (valeurs issues d'un audit du portfolio) et `build.mjs` : 48 paires de contraste vérifiées, 0 échec.
 - Jetons de la couche données : chiffres tabulaires et échelle dédiée (`--ds-num-*` : valeur, valeur secondaire, unité, libellé),
   couleurs d'état par thème (`--ds-data-*`, `--ds-success-text`), traitement non coloré de l'état estimé (pointillé).
-- Package `lumen-ds` v0.1.0 : 9 composants (dont `DataValue`, `Stat`, `DataTable`, `FilterChip`), 50 tests
-  (clavier, ARIA, axe, manquant ≠ 0, état jamais porté par la couleur seule, jetons générés, échec du build sous AA),
+- Package `lumen-ds` v0.1.0 : 9 composants (dont `DataValue`, `Stat`, `DataTable`, `FilterChip`), 54 tests
+  (clavier, ARIA, axe, manquant ≠ 0, état jamais porté par la couleur seule, jetons générés, échec du build sous AA, textes en anglais),
   typecheck (package et playground) et build verts. Sortie ESM importable directement par Node.
 - Rendu vérifié sur les 3 thèmes ; playground Vite avec une page « Comparateur » (données fictives estimées, périmées
   et manquantes), capturée dans Chrome headless sur les 3 thèmes. Dans les colonnes numériques, le bord droit des valeurs
   et des tirets est identique au pixel (mesuré dans Chrome headless, 3 thèmes) : la place du bouton ⓘ est toujours réservée.
-- Playground prêt pour un déploiement statique (Netlify, Vercel), non déployé.
+- Playground déployé sur Vercel ([ds-lumen-figma.vercel.app](https://ds-lumen-figma.vercel.app/)), avec lien direct `?view=` / `?theme=`.
+  `netlify.toml` reste prêt pour Netlify.
+- Boutons : état pressé (`:active`, `translateY(1px)`), comme le portfolio.
 - Figma : variables (Primitives, Theme / Studio, Theme / Book, Theme / Mood, Scale), 13+2 styles de texte,
   pages Foundations, Button (12 variantes), Input (4 états).
 
@@ -92,6 +122,5 @@ Détails du package : [react/README.md](react/README.md).
 **Décisions ouvertes**
 - Nom du système : Lumen, Cadre ou Strate.
 - Les 5 niveaux d'alpha blanc (8 / 15 / 30 / 50 / 70) : proposition à valider visuellement.
-- Hauteur du bouton Outline (52px) : hypothèse.
 
 Limite connue : jsdom n'a pas de mise en page, donc `jest-axe` ne vérifie pas les contrastes ; ils sont garantis par `build.mjs`.

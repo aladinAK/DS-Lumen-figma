@@ -5,6 +5,7 @@ import { DataValue } from './DataValue.js'
 import type { DataValueProps } from './DataValue.js'
 import { DEFAULT_LOCALE, formatNumber } from './format.js'
 import { ArrowDownIcon, ArrowFlatIcon, ArrowUpIcon } from './icons.js'
+import { messagesFor } from './messages.js'
 
 export type StatChange = {
   value: number
@@ -31,12 +32,13 @@ export function Stat({
   label, change, value, unit, status, source, updatedAt, now, formatOptions, locale = DEFAULT_LOCALE, className, ...rest
 }: StatProps) {
   const labelId = useId()
+  const m = messagesFor(locale)
   const missing = status === 'missing' || value == null
   const direction = change ? (change.value > 0 ? 'up' : change.value < 0 ? 'down' : 'flat') : null
   const tone = !change?.better || direction === 'flat' ? 'neutral' : direction === change.better ? 'good' : 'bad'
   const amount = change ? `${formatNumber(Math.abs(change.value), locale)}${change.unit ? ` ${change.unit}` : ''}` : ''
   const sign = direction === 'up' ? '+' : direction === 'down' ? '−' : ''
-  const spoken = direction === 'up' ? `En hausse de ${amount}` : direction === 'down' ? `En baisse de ${amount}` : 'Stable'
+  const spoken = direction === 'up' ? m.up(amount) : direction === 'down' ? m.down(amount) : m.flat
 
   return (
     <div role="group" aria-labelledby={labelId} className={cx('lm-stat', className)} {...rest}>

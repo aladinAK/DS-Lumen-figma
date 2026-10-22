@@ -2,7 +2,7 @@ import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { axe } from 'jest-axe'
 import { useState } from 'react'
-import { DataTable, DataValue, FilterChip, Stat } from '../src'
+import { DataTable, DataValue, FilterChip, Input, Stat } from '../src'
 import type { DataStatus, DataTableColumn } from '../src'
 
 // Limite connue: jsdom n'a pas de mise en page, donc axe ne peut pas calculer les contrastes.
@@ -310,5 +310,53 @@ describe('FilterChip', () => {
       </main>,
     )
     expect(await axe(container)).toHaveNoViolations()
+  })
+})
+
+describe('Anglais (locale en-*)', () => {
+  it('DataValue: textes accessibles et toggletip en anglais, nombres au format anglais', async () => {
+    const user = userEvent.setup()
+    const { container } = render(
+      <>
+        <DataValue value={null} status="missing" locale="en-CA" />
+        <DataValue value={1234.5} status="estimated" locale="en-CA" />
+        <DataValue value={42} status="stale" updatedAt={THREE_DAYS_AGO} now={NOW} source="Fictive" locale="en-CA" />
+      </>,
+    )
+    expect(screen.getByRole('img', { name: 'missing data' })).toBeInTheDocument()
+    expect(screen.getByText(/^about/)).toHaveClass('lm-sr-only')
+    expect(container.textContent).toContain('1,234.5')
+    expect(container.querySelector('.lm-data__age')).toHaveTextContent('3 days ago')
+    await user.click(screen.getByRole('button', { name: 'Data source and date' }))
+    expect(screen.getByText('Stale')).toBeVisible()
+    expect(screen.getByText('Source: Fictive')).toBeVisible()
+  })
+
+  it('Stat: sens de la variation énoncé en anglais', () => {
+    render(<Stat label="Median price" value={39} status="verified" locale="en-CA" change={{ value: -4.5, unit: '%' }} />)
+    expect(screen.getByText('Down 4.5 %')).toHaveClass('lm-sr-only')
+  })
+
+  it('DataTable: annonce du tri, erreur et Réessayer en anglais', async () => {
+    const user = userEvent.setup()
+    const { rerender } = render(<DataTable caption="Plans" columns={COLUMNS} rows={PLANS} rowKey={(p) => p.name} locale="en-CA" />)
+    await user.click(screen.getByRole('button', { name: /Prix/ }))
+    expect(screen.getByText('Sorted by Prix, ascending')).toBeInTheDocument()
+    rerender(<DataTable caption="Plans" columns={COLUMNS} rows={PLANS} rowKey={(p) => p.name} locale="en-CA" status="error" onRetry={() => {}} />)
+    expect(screen.getByRole('alert')).toHaveTextContent('Error: The data could not be loaded.')
+    expect(screen.getByRole('button', { name: 'Retry' })).toBeInTheDocument()
+  })
+
+  it('FilterChip et Input: noms par défaut en anglais, surcharge toujours possible', () => {
+    render(
+      <>
+        <FilterChip label="5G" pressed={false} onPressedChange={() => {}} onRemove={() => {}} locale="en-CA" />
+        <Input label="Email" error="invalid address." locale="en-CA" />
+        <Input label="Courriel" error="adresse invalide." errorPrefix="Attention : " locale="en-CA" />
+      </>,
+    )
+    expect(screen.getByRole('button', { name: 'Remove filter 5G' })).toBeInTheDocument()
+    expect(screen.getByLabelText('Email')).toHaveAccessibleDescription('Error: invalid address.')
+    expect(screen.getByLabelText('Courriel')).toHaveAccessibleDescription('Attention : adresse invalide.')
   })
 })

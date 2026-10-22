@@ -3,16 +3,10 @@ import type { HTMLAttributes } from 'react'
 import { cx } from './cx.js'
 import { DEFAULT_LOCALE, formatAge, formatDate, formatNumber } from './format.js'
 import { CheckIcon, ClockIcon, InfoIcon } from './icons.js'
+import { messagesFor } from './messages.js'
 
 /** Certitude d'une donnée. Une interface ne la présente jamais avec plus de certitude qu'elle n'en a. */
 export type DataStatus = 'verified' | 'estimated' | 'stale' | 'missing'
-
-const DATA_STATUS_LABEL: Record<DataStatus, string> = {
-  verified: 'Vérifiée',
-  estimated: 'Estimée',
-  stale: 'Périmée',
-  missing: 'Manquante',
-}
 
 export type DataValueProps = Omit<HTMLAttributes<HTMLSpanElement>, 'children'> & {
   /** `null` / `undefined` = donnée manquante, jamais 0. */
@@ -26,6 +20,7 @@ export type DataValueProps = Omit<HTMLAttributes<HTMLSpanElement>, 'children'> &
   size?: 'primary' | 'secondary'
   /** Date de référence pour l'âge d'une donnée périmée (tests, rendu serveur). */
   now?: Date
+  /** Format des nombres et des dates, et langue des textes (`en-*` → anglais). */
   locale?: string
   formatOptions?: Intl.NumberFormatOptions
 }
@@ -44,6 +39,7 @@ export function DataValue({
   const buttonRef = useRef<HTMLButtonElement>(null)
   const panelRef = useRef<HTMLSpanElement>(null)
   const panelId = useId()
+  const m = messagesFor(locale)
 
   const missing = status === 'missing' || value == null || Number.isNaN(value)
   const shown: DataStatus = missing ? 'missing' : status
@@ -83,17 +79,17 @@ export function DataValue({
   return (
     <span className={cx('lm-data', `lm-data--${shown}`, `lm-data--${size}`, className)} data-status={shown} {...rest}>
       {missing ? (
-        <span className="lm-data__value" role="img" aria-label="donnée manquante">—</span>
+        <span className="lm-data__value" role="img" aria-label={m.missing}>—</span>
       ) : (
         <span className="lm-data__value">
           {shown === 'verified' ? <CheckIcon /> : null}
           {shown === 'estimated' ? (
             <>
               <span className="lm-data__approx" aria-hidden="true">≈</span>
-              <span className="lm-sr-only">environ </span>
+              <span className="lm-sr-only">{m.approx}</span>
             </>
           ) : null}
-          {shown === 'stale' ? <span className="lm-sr-only">donnée périmée : </span> : null}
+          {shown === 'stale' ? <span className="lm-sr-only">{m.stalePrefix}</span> : null}
           <span className="lm-data__number">{formatNumber(value, locale, formatOptions)}</span>
           {unit ? <span className="lm-data__unit">{' '}{unit}</span> : null}
         </span>
@@ -101,7 +97,7 @@ export function DataValue({
       {shown === 'stale' ? (
         <span className="lm-data__age">
           <ClockIcon />
-          {updatedAt ? <><span className="lm-sr-only">, mise à jour </span>{formatAge(updatedAt, now, locale)}</> : 'périmée'}
+          {updatedAt ? <><span className="lm-sr-only">{m.updatedPrefix}</span>{formatAge(updatedAt, now, locale)}</> : m.staleNoDate}
         </span>
       ) : null}
       {hasMeta ? (
@@ -110,7 +106,7 @@ export function DataValue({
             ref={buttonRef}
             type="button"
             className="lm-data__info"
-            aria-label="Source et date de la donnée"
+            aria-label={m.infoButton}
             aria-expanded={open}
             aria-controls={panelId}
             onClick={toggle}
@@ -124,9 +120,9 @@ export function DataValue({
             hidden={!open}
             style={position ? { top: position.top, left: position.left } : undefined}
           >
-            <span className="lm-data__tip-status">{DATA_STATUS_LABEL[shown]}</span>
-            {source ? <span>Source : {source}</span> : null}
-            {updatedAt ? <span>Mise à jour : {formatDate(updatedAt, locale)}</span> : null}
+            <span className="lm-data__tip-status">{m.status[shown]}</span>
+            {source ? <span>{m.source}{source}</span> : null}
+            {updatedAt ? <span>{m.updated}{formatDate(updatedAt, locale)}</span> : null}
           </span>
         </>
       ) : (

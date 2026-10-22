@@ -4,6 +4,7 @@ import { Button } from './Button.js'
 import { cx } from './cx.js'
 import { DEFAULT_LOCALE } from './format.js'
 import { AlertIcon, ArrowDownIcon, ArrowUpIcon, SortIcon } from './icons.js'
+import { messagesFor } from './messages.js'
 
 export type SortDirection = 'ascending' | 'descending'
 export type SortState = { key: string; direction: SortDirection }
@@ -40,10 +41,9 @@ export type DataTableProps<Row> = Omit<HTMLAttributes<HTMLDivElement>, 'children
   defaultSort?: SortState
   onSortChange?: (sort: SortState) => void
   loadingRows?: number
+  /** Tri des textes et langue des messages par défaut (`en-*` → anglais). */
   locale?: string
 }
-
-const DIRECTION_LABEL: Record<SortDirection, string> = { ascending: 'ordre croissant', descending: 'ordre décroissant' }
 
 const read = <Row,>(row: Row, key: string): unknown => (row as Record<string, unknown>)[key]
 
@@ -75,10 +75,11 @@ export function sortRows<Row>(rows: Row[], column: DataTableColumn<Row>, directi
  */
 export function DataTable<Row>({
   caption, columns, rows, rowKey, status = 'ready', partial = false,
-  partialMessage = 'Certaines données sont incomplètes.', emptyMessage = 'Aucune donnée à afficher.', emptyAction,
-  errorMessage = 'Impossible de charger les données.', onRetry, stickyHeader = false, defaultSort, onSortChange,
+  partialMessage, emptyMessage, emptyAction,
+  errorMessage, onRetry, stickyHeader = false, defaultSort, onSortChange,
   loadingRows = 5, locale = DEFAULT_LOCALE, className, ...rest
 }: DataTableProps<Row>) {
+  const m = messagesFor(locale)
   const [sort, setSort] = useState<SortState | undefined>(defaultSort)
   const [announcement, setAnnouncement] = useState('')
   const captionId = useId()
@@ -91,7 +92,7 @@ export function DataTable<Row>({
     const direction: SortDirection = sort?.key === column.key && sort.direction === 'ascending' ? 'descending' : 'ascending'
     const next = { key: column.key, direction }
     setSort(next)
-    setAnnouncement(`Trié par ${column.header}, ${DIRECTION_LABEL[direction]}`)
+    setAnnouncement(m.sortedBy(column.header, direction))
     onSortChange?.(next)
   }
 
@@ -119,15 +120,15 @@ export function DataTable<Row>({
       <div role="alert" className="lm-table__error">
         <p className="lm-table__error-text">
           <AlertIcon />
-          <span>Erreur : {errorMessage}</span>
+          <span>{m.errorPrefix}{errorMessage ?? m.loadError}</span>
         </p>
-        {onRetry ? <Button variant="outline" onClick={onRetry}>Réessayer</Button> : null}
+        {onRetry ? <Button variant="outline" onClick={onRetry}>{m.retry}</Button> : null}
       </div>,
     )
   } else if (rows.length === 0) {
     body = message(
       <>
-        <p className="lm-table__empty-text">{emptyMessage}</p>
+        <p className="lm-table__empty-text">{emptyMessage ?? m.empty}</p>
         {emptyAction}
       </>,
     )
@@ -152,7 +153,7 @@ export function DataTable<Row>({
       {partial && status === 'ready' ? (
         <p id={partialId} className="lm-table__partial">
           <AlertIcon />
-          <span>{partialMessage}</span>
+          <span>{partialMessage ?? m.partial}</span>
         </p>
       ) : null}
       <div className="lm-table__scroll" role="region" aria-labelledby={captionId} tabIndex={0}>
@@ -189,7 +190,7 @@ export function DataTable<Row>({
           <tbody>{body}</tbody>
         </table>
       </div>
-      <p className="lm-sr-only" aria-live="polite">{status === 'loading' ? 'Chargement des données…' : announcement}</p>
+      <p className="lm-sr-only" aria-live="polite">{status === 'loading' ? m.loading : announcement}</p>
     </div>
   )
 }

@@ -1,8 +1,14 @@
 # Contexte — Lumen DS (nom de travail)
 
-Design system extrait du portfolio aladinakkari.ca, préparé pour une candidature « Design Engineer » chez Cohere
-(design system Waypoint : bibliothèque Figma, composants npm, pipeline de jetons Figma ↔ CSS/Tailwind, WCAG,
-design system lisible par des modèles d'IA). Dépôt public : ne jamais y mettre de secret ni d'info personnelle.
+Design system extrait du portfolio aladinakkari.ca, construit pour des postes « Design Engineer » orientés design system
+(bibliothèque Figma, composants npm, pipeline de jetons Figma ↔ CSS/Tailwind, WCAG, design system lisible par des modèles d'IA).
+Dépôt public : ne jamais y mettre de secret ni d'info personnelle (candidatures comprises).
+
+Démo : https://ds-lumen-figma.vercel.app/ (`?view=comparateur&theme=book`). Le portfolio documente Lumen
+(panneau « Mon design system », section Données, v1.6) : toute valeur ou affirmation modifiée ici doit rester vraie là-bas.
+Le portfolio installe `lumen-ds` depuis ce dépôt (dépendance git, sous-dossier `react/`, compilé par `prepare`) : il importe
+`lumen-ds/tokens.css` et `lumen-ds/styles.css` et utilise Button, Tag, Input, Card dans son panneau. Un nom de variable `--ds-*`
+ou une prop renommée ou retirée ici casse le portfolio. Après un push : `pnpm update lumen-ds` dans le portfolio, puis ses vérifications.
 
 ## Règle d'honnêteté
 Ne rien annoncer qui n'est pas réellement fait ou vérifié. README et CHANGELOG doivent rester fidèles à l'état réel :
@@ -19,21 +25,23 @@ toute nouvelle affirmation (tests, contraste, Figma) s'appuie sur une commande l
   Playground dans `playground/`, config `vite.config.ts` (root: playground).
 - `react/scripts/preview.tsx` — génère `preview.html` (3 thèmes). Aucun runner installé (pas de tsx).
 - Imports relatifs de `react/src` : toujours avec extension `.js` (ESM Node pur dans `dist/`).
+- Textes des composants : `src/messages.ts` (FR et EN, choisis par la prop `locale`). Tout nouveau texte y va, dans les deux langues.
 - `dist/` et `react/dist/` : générés, non versionnés.
 
 ## Direction
-Lumen suit l'identité visuelle du portfolio (CTA, polices, survols, durées). Exception : les corrections
-d'accessibilité de Lumen (anneau de focus, contrastes calculés, bordures de contrôle >= 3:1) sont gardées.
+Lumen suit l'identité visuelle du portfolio (CTA, polices, survols, durées, état pressé, hauteur 52px des boutons). Exception : les corrections
+d'accessibilité de Lumen (anneau de focus, contrastes calculés, bordures de contrôle >= 3:1) sont gardées ;
+le portfolio a adopté l'anneau de focus et les gris calculés (`--ds-fg-muted`, `--ds-fg-subtle`, `--ds-accent-alt-text`) pour son texte atténué.
 
 ## Commandes (depuis `react/`)
 ```bash
 npm install
-npm test            # 50 tests
+npm test            # 54 tests
 npm run typecheck   # package + playground
 npm run build       # node ../build.mjs + tsc + copie CSS
 node -e "import('./dist/index.js').then(m => console.log(Object.keys(m)))"
 npx vite            # playground ; nécessite npm run build avant (importe ../dist/tokens.css)
-npm run build:playground  # playground statique -> react/dist-playground/ (netlify.toml, react/vercel.json ; non déployé)
+npm run build:playground  # playground statique -> react/dist-playground/ (déployé sur Vercel via react/vercel.json ; netlify.toml prêt)
 ```
 
 ## Figma
@@ -49,4 +57,3 @@ publication npm, site de documentation, Tag/Card dans Figma.
 ## Décisions ouvertes — ne pas trancher sans demander
 - Nom du système : Lumen, Cadre ou Strate.
 - 5 niveaux d'alpha blanc 8/15/30/50/70 (à valider visuellement).
-- Hauteur du bouton Outline : 52px (hypothèse).

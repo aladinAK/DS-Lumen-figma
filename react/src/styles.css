@@ -28,6 +28,8 @@
   transform: scale(1.05);
   box-shadow: var(--ds-cta-glow);
 }
+/* Pressé: même retour que le portfolio (boutons de section et panneau). */
+.lm-btn:active { transform: translateY(1px); }
 .lm-btn--outline {
   padding-inline: var(--ds-space-6);
   border: var(--ds-border-control) solid var(--ds-fg);

@@ -3,6 +3,7 @@
 Design system React/TypeScript construit autour de **jetons de design** (`tokens.json`) et d'une accessibilité vérifiée,
 extrait de mon portfolio [aladinakkari.ca](https://aladinakkari.ca/) (identité visuelle, thèmes, CTA).
 Trois thèmes: **Studio** (sombre, accent lime), **Book** (parchemin) et **Mood** (bleu nuit).
+Démo: [ds-lumen-figma.vercel.app](https://ds-lumen-figma.vercel.app/).
 
 ## Chaîne design → code
 
@@ -14,10 +15,12 @@ tokens.json ──build.mjs──► dist/tokens.css          variables CSS (--d
 ```
 
 Les couleurs de texte atténué, de bordure de contrôle, d'erreur et d'accent-alt en texte sont **calculées** pour respecter
-WCAG AA sur chaque thème. Exemple: `#ff6568` est lisible sur Studio et Mood, mais pas sur le parchemin (≈2,2:1);
+WCAG AA sur chaque thème. Exemple: `#ff6568` est lisible sur Studio et Mood, mais pas sur le parchemin (≈2,1:1);
 le thème Book utilise donc `#9a4446` (4,61:1).
 
 ## Utilisation
+
+Installation (pas encore sur npm): `pnpm add "github:aladinAK/DS-Lumen-figma#path:/react"`. Le script `prepare` compile le package.
 
 ```tsx
 import 'lumen-ds/tokens.css'
@@ -85,11 +88,22 @@ import { DataValue, Stat, DataTable, FilterChip } from 'lumen-ds'
 | `DataTable` | `<caption>`, `<th scope="col">`, première colonne en `<th scope="row">`; tri par bouton dans l'en-tête + `aria-sort` + annonce polie; valeurs manquantes toujours en dernier; conteneur défilant focusable et nommé; `aria-busy` au chargement; erreur en `role="alert"` préfixée « Erreur : »; bandeau partiel relié par `aria-describedby` |
 | `FilterChip` | `aria-pressed` + coche quand actif; bouton de retrait nommé « Retirer le filtre … »; cibles de 32px |
 
+## Langue
+
+Les textes des composants (visibles et lecteurs d'écran) existent en français et en anglais. La langue suit la prop `locale`,
+déjà utilisée pour formater nombres et dates: `en-*` → anglais, toute autre valeur → français (défaut `fr-CA`).
+`DataValue`, `Stat`, `DataTable`, `FilterChip` et `Input` l'acceptent; les props de texte (`errorPrefix`, `removeLabel`,
+`emptyMessage`…) restent prioritaires.
+
+```tsx
+<DataValue value={null} status="missing" locale="en-CA" />   // « missing data »
+```
+
 ## Composants (v0.1.0)
 
 | Composant | Variantes | Points d'accessibilité |
 |---|---|---|
-| `Button` / `ButtonLink` | `primary` (CTA du thème: accent, rubis ou dégradé), `outline`, `pill` | focus visible 2px/3px, `type="button"` par défaut, lien désactivé = sans `href` + `aria-disabled`, zone tactile 44px sur `pill` |
+| `Button` / `ButtonLink` | `primary` (CTA du thème: accent, rubis ou dégradé), `outline`, `pill` | état pressé (`translateY(1px)`), focus visible 2px/3px, `type="button"` par défaut, lien désactivé = sans `href` + `aria-disabled`, zone tactile 44px sur `pill` |
 | `Input` | — | étiquette obligatoire, `aria-describedby` auto, `aria-invalid`, erreur préfixée (« Erreur : ») pour ne pas dépendre de la couleur, placeholder AA |
 | `Tag` | `accent`, `soft`, `outline` | statique; pour une action, utiliser `Button variant="pill"` |
 | `Card` | — | niveau de titre explicite (`headingLevel`) |
@@ -115,8 +129,8 @@ Chromium; anneau de focus calculé (2px solid, décalage 3px) sur les 3 thèmes;
 Vérifié (2026-10-22): couche données, 48 paires de contraste, 0 échec; page « Comparateur » du playground rendue dans Chrome headless
 sur les 3 thèmes (marqueurs d'état visibles; bord droit des valeurs et des tirets identique au pixel dans chaque colonne numérique).
 
-Exécuté en local (Node 22): `npm test` (50 tests: axe, clavier, ARIA, manquant ≠ 0, état jamais porté par la couleur seule,
-jetons générés, échec du build sous AA), `npm run typecheck` et `npm run build`, tous verts;
+Exécuté en local (Node 22): `npm test` (54 tests: axe, clavier, ARIA, manquant ≠ 0, état jamais porté par la couleur seule,
+jetons générés, échec du build sous AA, textes en anglais), `npm run typecheck` et `npm run build`, tous verts;
 `dist/index.js` s'importe en ESM Node pur. Package non publié sur npm.
 
 Limite connue: jsdom n'a pas de mise en page, donc `jest-axe` ne vérifie pas les contrastes. Ils sont garantis par `build.mjs`.

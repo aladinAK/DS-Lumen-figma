@@ -30,6 +30,7 @@
   "scripts": {
     "tokens": "node ../build.mjs",
     "build": "npm run tokens && tsc -p tsconfig.build.json && node scripts/copy-css.mjs",
+    "prepare": "npm run build",
     "test": "vitest run",
     "typecheck": "tsc --noEmit && tsc --noEmit -p playground",
     "build:playground": "npm run build && vite build"
