@@ -47,7 +47,8 @@ npm run build:playground  # playground statique -> react/dist-playground/ (dépl
 ## Figma
 Fichier « Lumen — Design System », clé `d4n8p0lYl7nA23p1Fr5H8i`.
 Collections : Primitives, Theme / Studio, Theme / Book, Theme / Mood (1 mode par collection, plan Starter), Scale.
-13+2 styles de texte ; pages Foundations, Button (12 variantes), Input (4 états).
+13+2 styles de texte (non relus depuis le 2026-10-11) ; pages Foundations, Button (12 variantes, sans état pressé), Input (4 états),
+relues le 2026-10-22.
 Tag et Card absents. Quota MCP Figma (20 appels/mois, Starter) : l'économiser.
 
 ## Pas encore fait

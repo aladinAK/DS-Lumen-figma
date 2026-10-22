@@ -102,8 +102,9 @@ Détails du package : [react/README.md](react/README.md).
 - Playground déployé sur Vercel ([ds-lumen-figma.vercel.app](https://ds-lumen-figma.vercel.app/)), avec lien direct `?view=` / `?theme=`.
   `netlify.toml` reste prêt pour Netlify.
 - Boutons : état pressé (`:active`, `translateY(1px)`), comme le portfolio.
-- Figma : variables (Primitives, Theme / Studio, Theme / Book, Theme / Mood, Scale), 13+2 styles de texte,
-  pages Foundations, Button (12 variantes), Input (4 états).
+- Figma : pages Foundations, Button (12 variantes : Primary, Outline, Pill × Default, Hover, Focus, Disabled) et
+  Input (4 états : Default, Focus, Error, Disabled), relu le 2026-10-22. Variables (Primitives, Theme / Studio, Theme / Book,
+  Theme / Mood, Scale) et 13+2 styles de texte : état du 2026-10-11, non relu depuis.
 
 **Pas encore fait**
 - Synchronisation automatique Figma ↔ code : les variables Figma ont été chargées une fois depuis
@@ -113,8 +114,8 @@ Détails du package : [react/README.md](react/README.md).
   Les nouvelles couleurs sont dans `dist/figma-variables.json` mais pas encore chargées dans le fichier Figma.
 - Couche données : le toggletip de source s'ouvre toujours sous son bouton (pas de bascule en bord d'écran).
 - `react/scripts/preview.tsx` n'inclut pas les composants de données.
-- Figma en retard sur le code : le CTA primary par thème (rubis sur book, dégradé sur mood) et la police
-  du kicker par thème ne sont pas encore reportés dans les variantes Button.
+- Figma en retard sur le code : le CTA primary par thème (rubis sur book, dégradé sur mood), la police
+  du kicker par thème et l'état pressé ne sont pas encore reportés dans les variantes Button.
 - Code Connect.
 - Publication npm.
 - Site de documentation.
