@@ -12,8 +12,9 @@ toute nouvelle affirmation (tests, contraste, Figma) s'appuie sur une commande l
 - `tokens.json` — source unique des jetons. Thèmes : studio (défaut), book, mood.
 - `build.mjs` — Node, sans dépendance. Génère `dist/tokens.css`, `dist/tailwind-theme.css`,
   `dist/figma-variables.json`, `dist/contrast-report.md`. Calcule fg-muted, fg-subtle, border-strong,
-  accent-alt-text, error-text pour WCAG AA par thème ; exit 1 si une paire échoue.
-- `react/` — package `lumen-ds` v0.1.0. Composants dans `src/` (Button, ButtonLink, Input, Tag, Card),
+  accent-alt-text, error-text, success-text, data-estimated, data-stale pour WCAG AA par thème ; exit 1 si une paire échoue.
+- `react/` — package `lumen-ds` v0.1.0. Composants dans `src/` (Button, ButtonLink, Input, Tag, Card ;
+  couche données : DataValue, Stat, DataTable, FilterChip),
   CSS `src/styles.css` préfixe `.lm-`, variables `--ds-*`. Tests dans `test/` (vitest, testing-library, jest-axe).
   Playground dans `playground/`, config `vite.config.ts` (root: playground).
 - `react/scripts/preview.tsx` — génère `preview.html` (3 thèmes). Aucun runner installé (pas de tsx).
@@ -27,11 +28,12 @@ d'accessibilité de Lumen (anneau de focus, contrastes calculés, bordures de co
 ## Commandes (depuis `react/`)
 ```bash
 npm install
-npm test            # 19 tests
-npm run typecheck
+npm test            # 50 tests
+npm run typecheck   # package + playground
 npm run build       # node ../build.mjs + tsc + copie CSS
 node -e "import('./dist/index.js').then(m => console.log(Object.keys(m)))"
 npx vite            # playground ; nécessite npm run build avant (importe ../dist/tokens.css)
+npm run build:playground  # playground statique -> react/dist-playground/ (netlify.toml, react/vercel.json ; non déployé)
 ```
 
 ## Figma

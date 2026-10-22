@@ -1,6 +1,7 @@
 node_modules/
 dist/
 react/dist/
+react/dist-playground/
 
 # Sorties de vérification visuelle (preview.html, captures)
 preview.*

@@ -4,6 +4,26 @@ Format: [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versionnement 
 
 ## [Non publié]
 
+### Ajouté — couche données
+- Jetons: `--ds-num-*` (tabular-nums, échelle valeur / valeur secondaire / unité / libellé), `--ds-data-{verified,estimated,stale,missing}`,
+  `--ds-success-text`, `--ds-data-estimated-decoration`; primitive `amber-400`. Couleurs estimée, périmée et succès calculées par thème
+  pour AA sur `bg` et `muted`; 12 paires ajoutées au rapport (48 au total). Exportées aussi vers Tailwind et `figma-variables.json`.
+- Composants `DataValue`, `Stat`, `DataTable`, `FilterChip`; utilitaire `sortRows` (valeurs manquantes toujours en dernier).
+- Playground: page « Comparateur » (données fictives).
+- 31 tests (27 composants, 4 jetons, dont l'échec du build sous AA).
+
+- `DataValue`: la place du bouton ⓘ est réservée quand il n'y a ni source ni date (`aria-hidden`), pour aligner
+  chiffres et tirets au pixel dans une colonne numérique.
+- `playground/tsconfig.json`; `npm run typecheck` vérifie aussi le playground.
+- `npm run build:playground` (sortie `dist-playground/`), `netlify.toml` et `vercel.json` pour un déploiement statique.
+
+### Corrigé
+- `Input`: dans une grille, un champ sans message d'aide n'étire plus son libellé et son input à la hauteur
+  d'un champ voisin qui en a un (`align-content: start` sur `.lm-field`).
+
+### Modifié
+- `build.mjs`: la dérivation « rapprocher de fg jusqu'à AA » est factorisée (`towardFg`); sorties existantes identiques.
+
 ### Modifié — alignement sur le portfolio
 - Bouton `primary`: fond et texte par thème via `--ds-cta-bg` / `--ds-cta-fg` (accent sur studio, rubis sur book,
   dégradé avec texte blanc sur mood); survol `scale(1.05)` + halo `--ds-cta-glow` (book, mood), comme le portfolio.

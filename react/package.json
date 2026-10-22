@@ -31,7 +31,8 @@
     "tokens": "node ../build.mjs",
     "build": "npm run tokens && tsc -p tsconfig.build.json && node scripts/copy-css.mjs",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit && tsc --noEmit -p playground",
+    "build:playground": "npm run build && vite build"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^7.0.1",

@@ -1,0 +1,8 @@
+# Playground statique de Lumen. Le build a besoin de tokens.json et build.mjs (racine) et de react/.
+[build]
+  base = "react"
+  command = "npm run build:playground"
+  publish = "dist-playground"
+
+[build.environment]
+  NODE_VERSION = "22"

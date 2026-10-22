@@ -1,5 +1,7 @@
-import { execFileSync } from 'node:child_process'
-import { readFileSync } from 'node:fs'
+import { execFileSync, spawnSync } from 'node:child_process'
+import { copyFileSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 
 // Jetons générés: on relance build.mjs (sans dépendance) pour tester la sortie réelle.
 // Contrat: le CTA et le kicker reprennent l'identité de chaque thème du portfolio.
@@ -36,5 +38,48 @@ describe('tokens.css', () => {
     expect(report).toContain('ctaFg / ctaBg (#ffffff sur #155dfc)')
     expect(report).toContain('ctaFg / ctaBg (#ffffff sur #9810fa)')
     expect(report).not.toContain('**NON**')
+  })
+})
+
+describe('couche données', () => {
+  const themes = [':root, [data-theme="studio"]', '[data-theme="book"]', '[data-theme="mood"]']
+
+  it('chaque thème définit les 4 états de donnée et le texte de succès', () => {
+    for (const selector of themes) {
+      const theme = block(selector)
+      for (const v of ['--ds-data-verified', '--ds-data-estimated', '--ds-data-stale', '--ds-data-missing', '--ds-success-text']) {
+        expect(theme).toContain(`${v}:`)
+      }
+    }
+    // book (parchemin): les couleurs de base sont rapprochées de l'encre jusqu'à AA
+    expect(block('[data-theme="book"]')).not.toContain('--ds-data-stale: #fbbf24;')
+  })
+
+  it('chiffres tabulaires et échelle dédiée', () => {
+    expect(css).toContain('--ds-num-features: tabular-nums;')
+    for (const role of ['primary', 'secondary', 'unit', 'label']) expect(css).toContain(`--ds-num-${role}-size:`)
+  })
+
+  it('les états de donnée sont dans le rapport de contraste, sans échec', () => {
+    const report = readFileSync('../dist/contrast-report.md', 'utf8')
+    for (const pair of ['dataEstimatedText / bg', 'dataStaleText / bg', 'successText / bg', 'fg / muted']) {
+      expect(report.split(pair).length - 1).toBe(3)
+    }
+    expect(report).not.toContain('**NON**')
+  })
+
+  it('le build échoue (exit 1) si une paire passe sous AA', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'lumen-tokens-'))
+    try {
+      copyFileSync('../build.mjs', join(dir, 'build.mjs'))
+      const tokens = JSON.parse(readFileSync('../tokens.json', 'utf8'))
+      tokens.theme.book.muted = '#2a2a2a' // fg (#1a1a1a) sur muted: bien sous 4,5:1
+      writeFileSync(join(dir, 'tokens.json'), JSON.stringify(tokens))
+      const run = spawnSync('node', [join(dir, 'build.mjs')], { encoding: 'utf8' })
+      expect(run.status).toBe(1)
+      expect(run.stdout).toContain('ECHEC book fg / muted')
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
   })
 })

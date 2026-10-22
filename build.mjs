@@ -55,6 +55,16 @@ const minAlpha = (top, base, bgs, target) => {
   }
   return null
 }
+// rapproche `base` de `fg` (pas de 0.01) jusqu'à atteindre `target` contre tous les fonds `bgs`
+const towardFg = (base, fg, bgs, target) => {
+  let color = base
+  let t = 0
+  while (!bgs.every((bg) => ratio(color, bg) >= target) && t < 1) {
+    t += 0.01
+    color = over(fg, base, t)
+  }
+  return { t: Number(t.toFixed(2)), color }
+}
 
 // ---------- dérivation par thème ----------
 const A = T.a11y
@@ -81,25 +91,22 @@ for (const [name, def] of Object.entries(T.theme)) {
   }
 
   // texte de couleur accent-alt (ex: rubis sur parchemin): on le rapproche de fg jusqu'à AA
-  let altText = th.accentAlt
-  let altT = 0
-  while (!bgs.every((bg) => ratio(altText, bg) >= A.textRatio) && altT < 1) {
-    altT += 0.01
-    altText = over(th.fg, th.accentAlt, altT)
-  }
-  th.accentAltText = altText
-  th.derived.accentAltText = Number(altT.toFixed(2))
+  const altText = towardFg(th.accentAlt, th.fg, bgs, A.textRatio)
+  th.accentAltText = altText.color
+  th.derived.accentAltText = altText.t
 
   // texte d'erreur: la couleur d'état est rapprochée de fg jusqu'à AA sur ce thème
-  const errBase = resolve(T.state.error)
-  let errText = errBase
-  let errT = 0
-  while (!bgs.every((bg) => ratio(errText, bg) >= A.textRatio) && errT < 1) {
-    errT += 0.01
-    errText = over(th.fg, errBase, errT)
+  const errText = towardFg(resolve(T.state.error), th.fg, bgs, A.textRatio)
+  th.errorText = errText.color
+  th.derived.errorText = errText.t
+
+  // états de donnée et variation positive: lisibles aussi sur `muted` (bandeau « données incomplètes »)
+  const dataBgs = [...bgs, th.muted]
+  for (const [key, base] of [['dataEstimatedText', T.state.estimated], ['dataStaleText', T.state.stale], ['successText', T.state.success]]) {
+    const d = towardFg(resolve(base), th.fg, dataBgs, A.textRatio)
+    th[key] = d.color
+    th.derived[key] = d.t
   }
-  th.errorText = errText
-  th.derived.errorText = Number(errT.toFixed(2))
 
   // texte posé sur l'accent: bg si ça passe, sinon fg, sinon noir/blanc
   const candidates = [th.bg, th.fg, '#000000', '#ffffff']
@@ -118,6 +125,10 @@ for (const [name, def] of Object.entries(T.theme)) {
     ['accentAltFg / accentAlt', th.accentAltFg, th.accentAlt, A.textRatio],
     ['accentAltText / bg', th.accentAltText, th.bg, A.textRatio],
     ['errorText / bg', th.errorText, th.bg, A.textRatio],
+    ['dataEstimatedText / bg', th.dataEstimatedText, th.bg, A.textRatio],
+    ['dataStaleText / bg', th.dataStaleText, th.bg, A.textRatio],
+    ['successText / bg', th.successText, th.bg, A.textRatio],
+    ['fg / muted', th.fg, th.muted, A.textRatio],
     ['borderStrong / bg', th.borderStrong, th.bg, A.uiRatio],
     ['focusRing / bg', th.focusRing, th.bg, A.uiRatio],
     ...th.ctaStops.map((stop) => ['ctaFg / ctaBg', th.ctaFg, stop, A.textRatio]),
@@ -162,6 +173,18 @@ for (const [k, v] of Object.entries(T.font.sizeFluid)) {
   if (v.md) L(`  --ds-text-${k}-md: ${v.md};`)
   if (v.lg) L(`  --ds-text-${k}-lg: ${v.lg};`)
 }
+L('  /* chiffres: tabular-nums + échelle dédiée (valeur, valeur secondaire, unité, libellé) */')
+L(`  --ds-num-features: ${T.font.numeric.features};`)
+for (const role of ['primary', 'secondary', 'unit', 'label']) {
+  const r = T.font.numeric[role]
+  L(`  --ds-num-${role}-size: ${resolve(r.size) / 16}rem; /* ${resolve(r.size)}px */`)
+  L(`  --ds-num-${role}-weight: ${resolve(r.weight)};`)
+  L(`  --ds-num-${role}-leading: ${resolve(r.lineHeight)};`)
+  L(`  --ds-num-${role}-tracking: ${resolve(r.letterSpacing)};`)
+}
+L('  /* états de donnée: traitements non colorés (WCAG 1.4.1) */')
+L(`  --ds-data-estimated-decoration: ${T.data.estimatedDecoration};`)
+L(`  --ds-data-underline-offset: ${T.data.underlineOffset};`)
 L('  /* espacement (base 4px) */')
 for (const [k, v] of Object.entries(T.space)) if (!k.startsWith('$')) L(`  --ds-space-${k}: ${px(v)};`)
 L('  /* rayons, bordures, ombres */')
@@ -190,6 +213,11 @@ const themeBlock = (sel, th) => {
   L(`  --ds-accent-alt-fg: ${th.accentAltFg};`)
   L(`  --ds-accent-alt-text: ${th.accentAltText};`)
   L(`  --ds-error-text: ${th.errorText}; /* couleur d'erreur lisible (AA) sur ce thème */`)
+  L(`  --ds-success-text: ${th.successText}; /* AA sur bg et muted */`)
+  L('  --ds-data-verified: var(--ds-fg);')
+  L(`  --ds-data-estimated: ${th.dataEstimatedText}; /* AA sur bg et muted */`)
+  L(`  --ds-data-stale: ${th.dataStaleText}; /* AA sur bg et muted */`)
+  L('  --ds-data-missing: var(--ds-fg-muted);')
   L(`  --ds-muted: ${th.muted};`)
   L(`  --ds-border: ${th.muted};`)
   L(`  --ds-border-strong: ${th.borderStrong}; /* >= 3:1, bordures de contrôles */`)
@@ -243,6 +271,11 @@ W('  --color-border-strong: var(--ds-border-strong);')
 W('  --color-ring: var(--ds-focus-ring);')
 W('  --color-success: var(--ds-state-success);')
 W('  --color-error: var(--ds-state-error);')
+W('  --color-success-text: var(--ds-success-text);')
+W('  --color-data-verified: var(--ds-data-verified);')
+W('  --color-data-estimated: var(--ds-data-estimated);')
+W('  --color-data-stale: var(--ds-data-stale);')
+W('  --color-data-missing: var(--ds-data-missing);')
 W('  --font-sans: var(--ds-font-sans);')
 W('  --font-mono: var(--ds-font-mono);')
 W('  --font-serif-accent: var(--ds-font-serif-accent);')
@@ -263,7 +296,7 @@ const toRgba = (hex) => {
 }
 const modes = Object.keys(themes)
 const colorVars = {}
-const colorKeys = ['bg', 'fg', 'fgMuted', 'fgSubtle', 'accent', 'accentFg', 'accentAlt', 'accentAltFg', 'accentAltText', 'errorText', 'muted', 'borderStrong', 'focusRing']
+const colorKeys = ['bg', 'fg', 'fgMuted', 'fgSubtle', 'accent', 'accentFg', 'accentAlt', 'accentAltFg', 'accentAltText', 'errorText', 'successText', 'dataEstimatedText', 'dataStaleText', 'muted', 'borderStrong', 'focusRing']
 for (const key of colorKeys) {
   colorVars[`color/${kebab(key)}`] = Object.fromEntries(modes.map((m) => [themes[m].label, toRgba(themes[m][key])]))
 }
