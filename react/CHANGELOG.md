@@ -22,7 +22,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), versionnement 
 - Script `prepare` (= `npm run build`): le package s'installe depuis git (`github:aladinAK/DS-Lumen-figma#path:/react`).
 - Le portfolio installe `lumen-ds`: ses thèmes, états, rampe neutre, espacement, rayons, ombres, mouvement et anneau de focus
   viennent de `lumen-ds/tokens.css`, et son panneau affiche `Button`, `Tag`, `Input`, `Card`; son texte atténué (auparavant par opacité, 1,9–4,1:1) prend
-  `--ds-fg-muted`, `--ds-fg-subtle` et `--ds-accent-alt-text`.
+  `--ds-fg-muted` et `--ds-accent-alt-text`.
 - Textes en anglais: `src/messages.ts` (FR, EN), choisis par la prop `locale` (`en-*` → anglais) sur `DataValue`, `Stat`,
   `DataTable`, et nouvelle prop `locale` sur `FilterChip` et `Input`. Défaut inchangé (français). 4 tests ajoutés (54 au total).
 

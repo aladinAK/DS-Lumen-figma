@@ -31,7 +31,7 @@ toute nouvelle affirmation (tests, contraste, Figma) s'appuie sur une commande l
 ## Direction
 Lumen suit l'identité visuelle du portfolio (CTA, polices, survols, durées, état pressé, hauteur 52px des boutons). Exception : les corrections
 d'accessibilité de Lumen (anneau de focus, contrastes calculés, bordures de contrôle >= 3:1) sont gardées ;
-le portfolio a adopté l'anneau de focus et les gris calculés (`--ds-fg-muted`, `--ds-fg-subtle`, `--ds-accent-alt-text`) pour son texte atténué.
+le portfolio a adopté l'anneau de focus et les couleurs calculées (`--ds-fg-muted`, `--ds-accent-alt-text`) pour son texte atténué.
 
 ## Commandes (depuis `react/`)
 ```bash
